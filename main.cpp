@@ -1,80 +1,64 @@
 #include <iostream>
+#include <cstring>
 
-using namespace std;
+class Coffee {
+protected:
+    char _type[15];
 
-class Product
-{
-    public:
-    virtual ~Product() {}
-    virtual string Operation() const = 0;
+public:
+    Coffee() {}
+    virtual ~Coffee() {}
+    char *getType() { return _type; }
 };
 
-class ConcreteProduct1: public Product
-{
-    public:
-    string Operation() const override {
-        return "RESULT OF CONCR. PROD. 1";
+class Cappuccino : public Coffee {
+public:
+    Cappuccino() : Coffee(){
+        strcpy(_type, "Cappuccino");
+        printf("\nMaking a cup of cappuccino\n");
+        printf("Grind and brew one scoop of expresso beans.\n");
+        printf("Heat and foam milk.\n");
     }
 };
 
-class ConcreteProduct2: public Product
-{
-    public:
-    string Operation() const override {
-        return "RESULT OF CONCR. PROD. 2";
+class Espresso : public Coffee {
+public:
+    Espresso() : Coffee(){
+        strcpy(_type, "Espresso");
+        printf("\nMaking a cup of espresso\n");
+        printf("Grind and brew one scoop of expresso beans.\n");
+        printf("Heat and foam milk.\n");
     }
 };
 
+enum type_of_coffe {
+    espresso = 1,
+    cappuccino
+};
 
-class Creator
-{
-    public:
-    virtual ~Creator() {}
-    virtual Product* FactoryMethod() const = 0;
-    string SomeOperation() const {
-        Product* product = this->FactoryMethod();
-        string result = "Creator: the same creator's "
-                        "code has just worked with "
-                        + product->Operation();
-        delete product;
-        return result;
+class CoffeeMakerFactory {
+private:
+    Coffee * _coffee;
+
+public:
+    CoffeeMakerFactory() {}
+    virtual ~CoffeeMakerFactory() {}
+    Coffee * GetCoffee(char type_of_coffe){
+        switch (type_of_coffe){
+            case espresso: return new Espresso;
+            case cappuccino: return new Cappuccino;
+            default: printf("Invalid Selection\n"); return nullptr;
+        }
     }
 };
 
-class ConcreteCreator1: public Creator
-{
-    public:
-    Product* FactoryMethod() const override {
-        return new ConcreteProduct1();
-    }
-};
+int main(){
 
-class ConcreteCreator2: public Creator
-{
-    public:
-    Product* FactoryMethod() const override {
-        return new ConcreteProduct2();
-    }
-};
+    CoffeeMakerFactory coffeeMachine;
+    Coffee *cup = coffeeMachine.GetCoffee(espresso);
 
-void ClientCode(const Creator& creator)
-{
-    cout << "Client: I'm not aware of the creator's "
-            "class, but it still works.\n"
-            << creator.SomeOperation() << endl;
-}
+    std::cout << "\nYou had asked for a(n) " << cup->getType() << "\n";
 
-int main()
-{
-    std::cout << "App: Launched with the ConcreteCreator1.\n";
-    Creator* creator = new ConcreteCreator1();
-    ClientCode(*creator);
-    std::cout << std::endl;
-    std::cout << "App: Launched with the ConcreteCreator2.\n";
-    Creator* creator2 = new ConcreteCreator2();
-    ClientCode(*creator2);
-
-    delete creator;
-    delete creator2;
+    printf("Done\n");
     return 0;
 }
